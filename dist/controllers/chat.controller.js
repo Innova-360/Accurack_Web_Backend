@@ -1,22 +1,21 @@
-import express, { Request, Response } from 'express';
-import { OpenAI } from 'openai';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const openai = new OpenAI({
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.chatController = void 0;
+const openai_1 = require("openai");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const openai = new openai_1.OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-
-export const chatController = async (req: Request, res: Response) => {
+const chatController = async (req, res) => {
     const { message } = req.body;
-
     if (!message || typeof message !== 'string') {
         return res.status(400).json({ error: 'message must be a string' });
     }
-
     console.log('🟢 Incoming message:', message);
-
     try {
         const completion = await openai.chat.completions.create({
             model: 'gpt-4',
@@ -31,15 +30,13 @@ export const chatController = async (req: Request, res: Response) => {
                 },
             ],
         });
-
         const reply = completion.choices[0].message.content;
         console.log('✅ OpenAI reply:', reply);
         res.json({ reply });
-    } catch (err: any) {
+    }
+    catch (err) {
         console.error('❌ OpenAI error:', err?.message || err);
         res.status(500).json({ error: 'OpenAI request failed' });
     }
-
-
-}
-
+};
+exports.chatController = chatController;

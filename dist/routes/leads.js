@@ -1,25 +1,31 @@
-import express from 'express';
-import axios from 'axios';
-import type { Request, Response } from 'express';
-import { validateUserData, validateUsername, validateEmail, validateBusinessEmail } from '../middleware/validation';
-
-const router = express.Router();
-const leads: any[] = [];
-
-
-router.post('/', validateUserData, async (req: Request, res: Response) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const axios_1 = __importDefault(require("axios"));
+const validation_1 = require("../middleware/validation");
+const router = express_1.default.Router();
+const leads = [];
+router.post('/', validation_1.validateUserData, async (req, res) => {
     const { name, phone, countryCode, businessName, industry, address, email } = req.body;
-
     // Additional field validation with detailed messages
     const missingFields = [];
-    if (!name) missingFields.push('name');
-    if (!phone) missingFields.push('phone');
-    if (!countryCode) missingFields.push('countryCode');
-    if (!businessName) missingFields.push('businessName');
-    if (!industry) missingFields.push('industry');
-    if (!address) missingFields.push('address');
-    if (!email) missingFields.push('email');
-
+    if (!name)
+        missingFields.push('name');
+    if (!phone)
+        missingFields.push('phone');
+    if (!countryCode)
+        missingFields.push('countryCode');
+    if (!businessName)
+        missingFields.push('businessName');
+    if (!industry)
+        missingFields.push('industry');
+    if (!address)
+        missingFields.push('address');
+    if (!email)
+        missingFields.push('email');
     if (missingFields.length > 0) {
         return res.status(400).json({
             success: false,
@@ -37,7 +43,6 @@ router.post('/', validateUserData, async (req: Request, res: Response) => {
             }
         });
     }
-
     const newLead = {
         id: leads.length + 1,
         name,
@@ -49,21 +54,19 @@ router.post('/', validateUserData, async (req: Request, res: Response) => {
         email,
         createdAt: new Date().toISOString(),
     };
-
     leads.push(newLead);
     console.log('🟢 New Lead:', newLead);
-
     try {
-        await axios.post(process.env.GOOGLE_SHEETS_WEBHOOK_URL!, newLead, {
+        await axios_1.default.post(process.env.GOOGLE_SHEETS_WEBHOOK_URL, newLead, {
             headers: {
                 'Content-Type': 'application/json',
             },
         });
         console.log('✅ Sent to Google Sheets!');
-    } catch (err: any) {
+    }
+    catch (err) {
         console.error('❌ Failed to send to Google Sheets:', err?.message || err);
     }
-
     res.status(201).json({
         success: true,
         message: 'Lead captured successfully',
@@ -75,13 +78,11 @@ router.post('/', validateUserData, async (req: Request, res: Response) => {
         }
     });
 });
-
-router.get('/', (_req: Request, res: Response) => {
+router.get('/', (_req, res) => {
     res.json({ leads });
 });
-
 // Test route for username validation only
-router.post('/validate-username', validateUsername, (req: Request, res: Response) => {
+router.post('/validate-username', validation_1.validateUsername, (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Username is valid!',
@@ -96,9 +97,8 @@ router.post('/validate-username', validateUsername, (req: Request, res: Response
         }
     });
 });
-
 // Test route for email validation only (allows personal emails)
-router.post('/validate-email', validateEmail, (req: Request, res: Response) => {
+router.post('/validate-email', validation_1.validateEmail, (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Email is valid!',
@@ -114,9 +114,8 @@ router.post('/validate-email', validateEmail, (req: Request, res: Response) => {
         }
     });
 });
-
 // Test route for business email validation only
-router.post('/validate-business-email', validateBusinessEmail, (req: Request, res: Response) => {
+router.post('/validate-business-email', validation_1.validateBusinessEmail, (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Business email is valid!',
@@ -134,9 +133,8 @@ router.post('/validate-business-email', validateBusinessEmail, (req: Request, re
         ]
     });
 });
-
 // Test route for combined validation
-router.post('/validate-user', validateUserData, (req: Request, res: Response) => {
+router.post('/validate-user', validation_1.validateUserData, (req, res) => {
     res.status(200).json({
         success: true,
         message: 'All user data is valid!',
@@ -159,5 +157,4 @@ router.post('/validate-user', validateUserData, (req: Request, res: Response) =>
         }
     });
 });
-
-export default router;
+exports.default = router;
