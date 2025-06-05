@@ -1,6 +1,11 @@
-import express, { Request, Response } from 'express';
+
+import express from 'express';
 import { OpenAI } from 'openai';
 import dotenv from 'dotenv';
+
+type Request = express.Request;
+type Response = express.Response;
+
 
 dotenv.config();
 

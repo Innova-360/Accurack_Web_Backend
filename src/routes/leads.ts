@@ -1,163 +1,64 @@
+// /src/routes/leads.ts
 import express from 'express';
-import axios from 'axios';
-import type { Request, Response } from 'express';
-import { validateUserData, validateUsername, validateEmail, validateBusinessEmail } from '../middleware/validation';
+import { getFirestore } from 'firebase-admin/firestore';
+
 
 const router = express.Router();
-const leads: any[] = [];
+type Request = express.Request;
+type Response = express.Response;
 
 
-router.post('/', validateUserData, async (req: Request, res: Response) => {
-    const { name, phone, countryCode, businessName, industry, address, email } = req.body;
+let db: ReturnType<typeof getFirestore>;
 
-    // Additional field validation with detailed messages
-    const missingFields = [];
-    if (!name) missingFields.push('name');
-    if (!phone) missingFields.push('phone');
-    if (!countryCode) missingFields.push('countryCode');
-    if (!businessName) missingFields.push('businessName');
-    if (!industry) missingFields.push('industry');
-    if (!address) missingFields.push('address');
-    if (!email) missingFields.push('email');
+// Instead of initializing Firestore here, export a function to get the db instance
+export function getDb() {
+  if (!db) {
+    db = getFirestore();
+  }
+  return db;
+}
 
-    if (missingFields.length > 0) {
-        return res.status(400).json({
-            success: false,
-            error: 'Missing required fields',
-            missingFields: missingFields,
-            message: `Please provide the following fields: ${missingFields.join(', ')}`,
-            requiredFields: {
-                name: 'Full name (5-15 characters, alphanumeric)',
-                phone: 'Phone number',
-                countryCode: 'Country code (e.g., +1, +91)',
-                businessName: 'Business name',
-                industry: 'Industry type',
-                address: 'Business address',
-                email: 'Valid email address'
-            }
-        });
+router.post('/', async (req: Request, res: Response) => {
+    const db = getDb();
+    const { name, phone, countryCode, businessName, industry, address, email, help, companyWeb } = req.body;
+
+    if (!name || !phone || !countryCode || !businessName || !industry || !address || !email || !help || !companyWeb) {
+        return res.status(400).json({ error: 'All fields are required' });
+        
     }
-
-    const newLead = {
-        id: leads.length + 1,
-        name,
-        phone,
-        countryCode,
-        businessName,
-        industry,
-        address,
-        email,
-        createdAt: new Date().toISOString(),
-    };
-
-    leads.push(newLead);
-    console.log('🟢 New Lead:', newLead);
 
     try {
-        await axios.post(process.env.GOOGLE_SHEETS_WEBHOOK_URL!, newLead, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        const docRef = await db.collection('leads').add({
+            name,
+            phone,
+            countryCode,
+            businessName,
+            industry,
+            address,
+            email,
+            help,
+            companyWeb,
+            createdAt: new Date().toISOString(),
         });
-        console.log('✅ Sent to Google Sheets!');
-    } catch (err: any) {
-        console.error('❌ Failed to send to Google Sheets:', err?.message || err);
+        const newLead = (await docRef.get()).data();
+        console.log('🟢 New Lead:', newLead);
+        res.status(201).json({ message: 'Lead captured successfully', lead: newLead });
+    } catch (err) {
+        console.error('❌ Failed to save lead to Firestore:', err);
+        res.status(500).json({ error: 'Failed to save lead' });
     }
-
-    res.status(201).json({
-        success: true,
-        message: 'Lead captured successfully',
-        lead: newLead,
-        info: {
-            totalLeads: leads.length,
-            googleSheetsStatus: 'Sent to Google Sheets',
-            nextSteps: 'Our team will contact you within 24 hours'
-        }
-    });
 });
 
-router.get('/', (_req: Request, res: Response) => {
-    res.json({ leads });
-});
-
-// Test route for username validation only
-router.post('/validate-username', validateUsername, (req: Request, res: Response) => {
-    res.status(200).json({
-        success: true,
-        message: 'Username is valid!',
-        username: req.body.username || req.body.name,
-        examples: {
-            valid: ['john123', 'alice2024', 'user12345', 'test99', 'admin2025'],
-            rules: [
-                'Must be 5-15 characters long',
-                'Only letters and numbers allowed',
-                'No spaces or special characters'
-            ]
-        }
-    });
-});
-
-// Test route for email validation only (allows personal emails)
-router.post('/validate-email', validateEmail, (req: Request, res: Response) => {
-    res.status(200).json({
-        success: true,
-        message: 'Email is valid!',
-        email: req.body.email,
-        examples: {
-            valid: ['user@example.com', 'john.doe@company.org', 'alice123@gmail.com'],
-            rules: [
-                'Must contain @ symbol',
-                'Must have valid domain with dot',
-                'Maximum 254 characters',
-                'No spaces allowed'
-            ]
-        }
-    });
-});
-
-// Test route for business email validation only
-router.post('/validate-business-email', validateBusinessEmail, (req: Request, res: Response) => {
-    res.status(200).json({
-        success: true,
-        message: 'Business email is valid!',
-        email: req.body.email,
-        examples: {
-            valid: ['john@company.com', 'alice@business.org', 'user@startup.io'],
-            invalid: ['user@gmail.com', 'john@yahoo.com', 'alice@hotmail.com'],
-            blocked_domains: ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com']
-        },
-        rules: [
-            'Must be a valid email format',
-            'Must be a business/company email',
-            'Personal emails (Gmail, Yahoo, etc.) are not allowed',
-            'Maximum 254 characters'
-        ]
-    });
-});
-
-// Test route for combined validation
-router.post('/validate-user', validateUserData, (req: Request, res: Response) => {
-    res.status(200).json({
-        success: true,
-        message: 'All user data is valid!',
-        data: {
-            username: req.body.username || req.body.name,
-            email: req.body.email
-        },
-        validation_rules: {
-            username: [
-                'Must be 5-15 characters long',
-                'Only letters and numbers allowed',
-                'No spaces or special characters'
-            ],
-            email: [
-                'Must contain @ symbol',
-                'Must have valid domain with dot',
-                'Maximum 254 characters',
-                'No spaces allowed'
-            ]
-        }
-    });
+// Get all leads from Firestore
+router.get('/', async (_req: Request, res: Response) => {
+    const db = getDb();
+    try {
+        const snapshot = await db.collection('leads').orderBy('createdAt', 'desc').get();
+        const leads = snapshot.docs.map(doc => doc.data());
+        res.json({ leads });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch leads' });
+    }
 });
 
 export default router;
