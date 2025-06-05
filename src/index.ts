@@ -7,15 +7,21 @@ import leadsRouter from './routes/leads';
 import { initializeApp as initializeAdminApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { ServiceAccount } from 'firebase-admin';
-import serviceAccount from '../serviceAccountKey.json';
 
 dotenv.config();
 
 const app = express();
 
+// Build service account from environment variables
+const serviceAccount: ServiceAccount = {
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+};
+
 // Initialize Firebase Admin SDK
 initializeAdminApp({
-  credential: cert(serviceAccount as ServiceAccount)
+  credential: cert(serviceAccount)
 });
 const db = getFirestore();
 
