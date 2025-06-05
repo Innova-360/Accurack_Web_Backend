@@ -7,25 +7,13 @@
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "allowJs": true,
-    "checkJs": true
+    "allowJs": false,         // you don't need this unless mixing JS/TS
+    "checkJs": false          // same as above — turn off if you're all TS
   },
-  "include": ["src/**/*", "src/index.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
-
-
-// {
-//   "compilerOptions": {
-//     "target": "ES2020",
-//     "module": "ESNext",
-//     "moduleResolution": "Node",
-//     "outDir": "./dist",
-//     "rootDir": "./src",
-//     "skipLibCheck": true
-//   },
-//   "include": ["src"]
-// }
