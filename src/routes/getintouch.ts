@@ -20,25 +20,10 @@ export function getDb() {
 
 router.post('/', async (req: Request, res: Response) => {
     const db = getDb();
-    const { name, phone, countryCode, businessName, industry, address, email, help, companyWeb } = req.body;
-
-    if (!name || !phone || !countryCode || !businessName || !industry || !address || !email || !help || !companyWeb) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
+    const data = req.body;
 
     try {
-        const docRef = await db.collection('getintouch').add({
-            name,
-            phone,
-            countryCode,
-            businessName,
-            industry,
-            address,
-            email,
-            help,
-            companyWeb,
-            createdAt: new Date().toISOString(),
-        });
+        const docRef = await db.collection('getintouch').add(data);
         const newGetInTouch = (await docRef.get()).data();
         console.log('🟢 New GetInTouch:', newGetInTouch);
         res.status(201).json({ message: 'Get in touch form submitted successfully', getInTouch: newGetInTouch });
