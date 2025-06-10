@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import chatRouter from './routes/chat';
 import leadsRouter from './routes/leads';
+import getInTouchRouter from './routes/getintouch';
 import { initializeApp as initializeAdminApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { ServiceAccount } from 'firebase-admin';
@@ -29,6 +30,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/chatbot', chatRouter);
 app.use('/api/leads', leadsRouter);
+app.use('/api/getintouch', getInTouchRouter);
 
 // Firebase Web SDK config (for frontend use only, not for backend)
 /*

@@ -20,26 +20,28 @@ export function getDb() {
 
 router.post('/', async (req: Request, res: Response) => {
     const db = getDb();
-    const { name, phone, countryCode, businessName, industry, address, email, help, companyWeb } = req.body;
+    const data = req.body;
 
-    if (!name || !phone || !countryCode || !businessName || !industry || !address || !email || !help || !companyWeb) {
-        return res.status(400).json({ error: 'All fields are required' });
+    // if (!name || !phone || !countryCode || !businessName || !industry || !address || !email || !help || !companyWeb) {
+    //     return res.status(400).json({ error: 'All fields are required' });
         
-    }
+    // }
 
     try {
-        const docRef = await db.collection('leads').add({
-            name,
-            phone,
-            countryCode,
-            businessName,
-            industry,
-            address,
-            email,
-            help,
-            companyWeb,
-            createdAt: new Date().toISOString(),
-        });
+        const docRef = await db.collection('leads').add(
+            data
+            // name,
+            // phone,
+            // countryCode,
+            // businessName,
+            // industry,
+            // address,
+            // email,
+            // help,
+            // companyWeb,
+            // calendly: calendly || null,
+            // createdAt: new Date().toISOString(),
+        );
         const newLead = (await docRef.get()).data();
         console.log('🟢 New Lead:', newLead);
         res.status(201).json({ message: 'Lead captured successfully', lead: newLead });
