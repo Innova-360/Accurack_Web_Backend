@@ -37,7 +37,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/', async (_req: Request, res: Response) => {
     const db = getDb();
     try {
-        const snapshot = await db.collection('leads').orderBy('createdAt', 'desc').get();
+        const snapshot = await db.collection('getintouch').orderBy('createdAt', 'desc').get();
         const leads = snapshot.docs.map(doc => doc.data());
         res.json({ leads });
     } catch (err) {
