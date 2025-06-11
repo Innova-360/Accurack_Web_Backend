@@ -9,6 +9,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const chat_1 = __importDefault(require("./routes/chat"));
 const leads_1 = __importDefault(require("./routes/leads"));
+const getintouch_1 = __importDefault(require("./routes/getintouch"));
 const app_1 = require("firebase-admin/app");
 const firestore_1 = require("firebase-admin/firestore");
 dotenv_1.default.config();
@@ -28,6 +29,7 @@ app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use('/api/chatbot', chat_1.default);
 app.use('/api/leads', leads_1.default);
+app.use('/api/getintouch', getintouch_1.default);
 // Firebase Web SDK config (for frontend use only, not for backend)
 /*
 const firebaseConfig = {
