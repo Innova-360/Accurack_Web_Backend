@@ -36,6 +36,7 @@ router.post('/', async (req, res) => {
         // calendly: calendly || null,
         // createdAt: new Date().toISOString(),
         );
+        console.log(data);
         const newLead = (await docRef.get()).data();
         console.log('🟢 New Lead:', newLead);
         res.status(201).json({ message: 'Lead captured successfully', lead: newLead });

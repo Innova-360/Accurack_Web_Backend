@@ -30,22 +30,7 @@ app.use(express_1.default.json());
 app.use('/api/chatbot', chat_1.default);
 app.use('/api/leads', leads_1.default);
 app.use('/api/getintouch', getintouch_1.default);
-// Firebase Web SDK config (for frontend use only, not for backend)
-/*
-const firebaseConfig = {
-  apiKey: "AIzaSyDnmm8PkbeNJ_Ppw1U5QBL4tsWqniLobS8",
-  authDomain: "accurack360.firebaseapp.com",
-  projectId: "accurack360",
-  storageBucket: "accurack360.firebasestorage.app",
-  messagingSenderId: "784659632157",
-  appId: "1:784659632157:web:623e23b7b4af61f08136f4"
-};
 
-import { initializeApp } from "firebase/app";
-const app = initializeApp(firebaseConfig);
-
-Note: This config is for frontend (browser) Firebase SDK. For backend, use firebase-admin with service account as already implemented.
-*/
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ AccuRack backend running at http://localhost:${PORT}`);
